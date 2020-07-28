@@ -1,26 +1,44 @@
-const logs = require('./json/0x0e3a2a1f2146d86a604adc220b4967a898d7fe07_logs.json');
+const logs = require('../allLogs/0x8c9b261faef3b3c2e64ab5e58e04615f8c788099_logs.json');
 const fs = require('fs');
 
 let totalCount = 0;
 let addresses = []
 
-let logger = fs.createWriteStream('./addressTransferCount/' + logs[0].address.toString() + '_addressCount.csv', { flags: 'a' });
-logger.write("From,Transfers");
+let Sellerlogger = fs.createWriteStream('./addressTransferCount/SELLER' + logs[0].address.toString() + '_addressCount.txt', { flags: 'a' });
+console.log(logs);
+Sellerlogger.write("Sellers");
 
 logs.forEach(element => {
     let checkAddress = "0x" + element.topics[1].toString().substring(26);
     if (!addresses.some(address => address === checkAddress)) {
         addresses.push(checkAddress);
-        logs.forEach(element2 => {
-            let fromAddress = "0x" + element2.topics[1].toString().substring(26);
-            if (checkAddress === fromAddress) {
-                totalCount += 1;
-            }
-        });
-        logger.write("\n");
-        logger.write(checkAddress + "," + totalCount);
-        totalCount = 0;
+        Sellerlogger.write("\n");
+        Sellerlogger.write(checkAddress);
+        totalCount++;
     }
 });
 
+Sellerlogger.write("\n");
+Sellerlogger.write("Total Sellers: " + totalCount)
+
+
+//Buyer Code
+let buyerAddresses = [];
+let addressCounter = 0;
+let buyerlogger = fs.createWriteStream('./addressTransferCount/BUYER' + logs[0].address.toString() + '_addressCount.txt', { flags: 'a' });
+
+buyerlogger.write("Buyer");
+
+logs.forEach(element => {
+    let buyerAddress = "0x" + element.topics[2].toString().substring(26);
+    if (!buyerAddresses.some(address => address === buyerAddress)) {
+        buyerAddresses.push(buyerAddress);
+        buyerlogger.write("\n");
+        buyerlogger.write(buyerAddress);
+        addressCounter++;
+    }
+});
+
+buyerlogger.write("\n");
+buyerlogger.write("Total Buyers: " + addressCounter)
 console.log("Done");
